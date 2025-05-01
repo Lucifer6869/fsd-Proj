@@ -26,7 +26,7 @@ export default function RootLayout({
   children,
 }) { // Removed types: Readonly<{ children: React.ReactNode; }>
   return (
-    <html lang="en">
+    <html lang="en" className="dark"> {/* Added dark class here */}
       <body
         className={cn(
           `${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-background text-foreground` // Use Geist variables and add flex structure, added background/foreground
