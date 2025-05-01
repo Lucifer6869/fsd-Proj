@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "jsx": "preserve",
+    "checkJs": false, // Optional: Set to true for basic JS type checking
+    "esModuleInterop": true,
+    "moduleResolution": "node"
+  },
+  "include": ["src/**/*.js", "src/**/*.jsx", "next-env.d.ts"], // Include JS/JSX files
+  "exclude": ["node_modules"]
+}
