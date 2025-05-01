@@ -34,8 +34,8 @@ export default function RootLayout({
           `${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col` // Use Geist variables and add flex structure
         )}
       >
-        {/* Main container for consistent padding and structure */}
-        <main className="flex-grow container mx-auto px-4 py-8">
+        {/* Remove container and padding - let pages handle their layout */}
+        <main className="flex-grow">
           {children}
         </main>
         <Toaster /> {/* Add Toaster for notifications */}
