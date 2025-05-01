@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -14,7 +15,7 @@ const DialogPortal = DialogPrimitive.Portal
 
 const DialogClose = DialogPrimitive.Close
 
-const DialogOverlay = React.forwardRef(
+const DialogOverlay = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
@@ -27,7 +28,7 @@ const DialogOverlay = React.forwardRef(
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
-const DialogContent = React.forwardRef(
+const DialogContent = React.forwardRef( // Removed types
   ({ className, children, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
@@ -49,7 +50,7 @@ const DialogContent = React.forwardRef(
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
-const DialogHeader = ({
+const DialogHeader = ({ // Removed type: React.HTMLAttributes<HTMLDivElement>
   className,
   ...props
 }) => (
@@ -63,7 +64,7 @@ const DialogHeader = ({
 )
 DialogHeader.displayName = "DialogHeader"
 
-const DialogFooter = ({
+const DialogFooter = ({ // Removed type: React.HTMLAttributes<HTMLDivElement>
   className,
   ...props
 }) => (
@@ -77,7 +78,7 @@ const DialogFooter = ({
 )
 DialogFooter.displayName = "DialogFooter"
 
-const DialogTitle = React.forwardRef(
+const DialogTitle = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
@@ -90,7 +91,7 @@ const DialogTitle = React.forwardRef(
 ))
 DialogTitle.displayName = DialogPrimitive.Title.displayName
 
-const DialogDescription = React.forwardRef(
+const DialogDescription = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}

@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import Image from 'next/image';
 import { useRouter } from 'next/navigation'; // Import useRouter for redirection
+// Removed type import: import type { AddMemberResponse } from '@/lib/types';
 
 // Define Zod schema for validation
 const formSchema = z.object({
@@ -36,9 +37,10 @@ const formSchema = z.object({
     ),
 });
 
+// Removed type alias: type FormValues = z.infer<typeof formSchema>;
 
 // Updated function to match the API response structure
-async function submitMemberData(data) {
+async function submitMemberData(data) { // Removed type: FormData
   console.log("Submitting member data via API...");
   try {
     const response = await fetch('/api/members', {
@@ -47,7 +49,7 @@ async function submitMemberData(data) {
       // Headers are not needed for FormData by default, browser sets Content-Type
     });
 
-    const result = await response.json(); // Parse the JSON response
+    const result = await response.json(); // Removed type: AddMemberResponse
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 400, 500)
@@ -68,11 +70,10 @@ export default function AddMemberForm() {
   const { toast } = useToast();
   const router = useRouter(); // Initialize router
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [previewImage, setPreviewImage] = React.useState(null);
-  const fileInputRef = React.useRef(null);
+  const [previewImage, setPreviewImage] = React.useState(null); // Removed type: string | null
+  const fileInputRef = React.useRef(null); // Removed type: HTMLInputElement
 
-
-  const form = useForm({
+  const form = useForm({ // Removed type: FormValues
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -83,7 +84,7 @@ export default function AddMemberForm() {
     },
   });
 
-  const handleImageChange = (event) => {
+  const handleImageChange = (event) => { // Removed type: React.ChangeEvent<HTMLInputElement>
     const file = event.target.files?.[0];
     if (file) {
       // Validate file size and type again on client-side for immediate feedback
@@ -99,7 +100,7 @@ export default function AddMemberForm() {
       form.setValue("image", file, { shouldValidate: true }); // Trigger validation
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewImage(reader.result);
+        setPreviewImage(reader.result); // Removed type assertion: as string
       };
       reader.readAsDataURL(file);
     } else {
@@ -109,7 +110,7 @@ export default function AddMemberForm() {
   };
 
 
-  async function onSubmit(values) {
+  async function onSubmit(values) { // Removed type: FormValues
     setIsSubmitting(true);
 
     const formData = new FormData();

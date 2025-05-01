@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -6,7 +7,7 @@ import { Circle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-const RadioGroup = React.forwardRef(
+const RadioGroup = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => {
   return (
     <RadioGroupPrimitive.Root
@@ -18,7 +19,7 @@ const RadioGroup = React.forwardRef(
 })
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
 
-const RadioGroupItem = React.forwardRef(
+const RadioGroupItem = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => {
   return (
     <RadioGroupPrimitive.Item

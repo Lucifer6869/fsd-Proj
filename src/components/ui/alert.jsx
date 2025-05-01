@@ -1,5 +1,6 @@
+
 import * as React from "react"
-import { cva } from "class-variance-authority"
+import { cva } from "class-variance-authority" // Removed type: type VariantProps
 
 import { cn } from "@/lib/utils"
 
@@ -19,7 +20,7 @@ const alertVariants = cva(
   }
 )
 
-const Alert = React.forwardRef(
+const Alert = React.forwardRef( // Removed types
   ({ className, variant, ...props }, ref) => (
   <div
     ref={ref}
@@ -30,7 +31,7 @@ const Alert = React.forwardRef(
 ))
 Alert.displayName = "Alert"
 
-const AlertTitle = React.forwardRef(
+const AlertTitle = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <h5
     ref={ref}
@@ -40,7 +41,7 @@ const AlertTitle = React.forwardRef(
 ))
 AlertTitle.displayName = "AlertTitle"
 
-const AlertDescription = React.forwardRef(
+const AlertDescription = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <div
     ref={ref}

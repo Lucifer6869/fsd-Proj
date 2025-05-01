@@ -1,15 +1,13 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Users, UserPlus, Rocket } from 'lucide-react'; // Removed unused icons Target, Group
+import { Users, UserPlus, Rocket } from 'lucide-react'; // Removed Target, Group
 
 // Define Team Name (can be fetched or configured elsewhere later)
 const TEAM_NAME = "The Innovators";
 
 export default function Home() {
-  const currentYear = new Date().getFullYear(); // Get current year dynamically
-
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)]"> {/* Adjusted height calculation */}
+    <div className="flex flex-col min-h-[calc(100vh_-_theme(spacing.32))]"> {/* Adjust height calculation if layout changes */}
 
       {/* Hero Section */}
       <section className="flex-grow flex flex-col items-center justify-center text-center px-4 py-16 bg-gradient-to-b from-background to-secondary/30">
@@ -35,8 +33,8 @@ export default function Home() {
       </section>
 
       {/* Footer Section (Simple Example) */}
-      <footer className="py-6 bg-muted text-muted-foreground text-center text-sm">
-           <p>&copy; {currentYear} {TEAM_NAME}. Built with TeamUp.</p>
+      <footer className="py-6 bg-muted text-muted-foreground text-center text-sm mt-auto"> {/* Added mt-auto */}
+           <p>&copy; {new Date().getFullYear()} {TEAM_NAME}. Built with TeamUp.</p>
       </footer>
     </div>
   );

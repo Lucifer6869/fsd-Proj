@@ -1,8 +1,9 @@
+
 "use client"
 
 import * as React from "react"
 import * as SheetPrimitive from "@radix-ui/react-dialog"
-import { cva } from "class-variance-authority"
+import { cva } from "class-variance-authority" // Removed type: type VariantProps
 import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -15,7 +16,7 @@ const SheetClose = SheetPrimitive.Close
 
 const SheetPortal = SheetPrimitive.Portal
 
-const SheetOverlay = React.forwardRef(
+const SheetOverlay = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
@@ -47,7 +48,9 @@ const sheetVariants = cva(
   }
 )
 
-const SheetContent = React.forwardRef(
+// Removed interface: SheetContentProps
+
+const SheetContent = React.forwardRef( // Removed types
   ({ side = "right", className, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
@@ -66,7 +69,7 @@ const SheetContent = React.forwardRef(
 ))
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
-const SheetHeader = ({
+const SheetHeader = ({ // Removed type: React.HTMLAttributes<HTMLDivElement>
   className,
   ...props
 }) => (
@@ -80,7 +83,7 @@ const SheetHeader = ({
 )
 SheetHeader.displayName = "SheetHeader"
 
-const SheetFooter = ({
+const SheetFooter = ({ // Removed type: React.HTMLAttributes<HTMLDivElement>
   className,
   ...props
 }) => (
@@ -94,7 +97,7 @@ const SheetFooter = ({
 )
 SheetFooter.displayName = "SheetFooter"
 
-const SheetTitle = React.forwardRef(
+const SheetTitle = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <SheetPrimitive.Title
     ref={ref}
@@ -104,7 +107,7 @@ const SheetTitle = React.forwardRef(
 ))
 SheetTitle.displayName = SheetPrimitive.Title.displayName
 
-const SheetDescription = React.forwardRef(
+const SheetDescription = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <SheetPrimitive.Description
     ref={ref}

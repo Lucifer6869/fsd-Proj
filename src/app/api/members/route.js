@@ -1,5 +1,6 @@
 // src/app/api/members/route.js
 import { NextRequest, NextResponse } from 'next/server';
+// Removed type import: import { TeamMember } from '@/lib/types';
 import path from 'path';
 import fs from 'fs/promises'; // Use promises API for async operations
 
@@ -13,18 +14,20 @@ import fs from 'fs/promises'; // Use promises API for async operations
 // --- Mock Database (In-Memory) ---
 // Define the mock array outside the handlers to persist across requests *within the same server process*.
 // This is NOT suitable for production or even reliable multi-user development.
-// Make it global to be potentially accessed (unreliably) by the [id] route.
-let mockMembers = global.mockMembers || [
+let mockMembers = [ // Removed type: TeamMember[]
   { id: "1", name: "Alice Wonderland", role: "Project Manager", email: "alice.wonder@example.com", contactInfo: "LinkedIn: /in/alicew", imageUrl: "/uploads/mock-alice.jpg" },
   { id: "2", name: "Bob The Builder", role: "Lead Developer", email: "bob.builder@example.com", contactInfo: "555-1234", imageUrl: "/uploads/mock-bob.jpg" },
   { id: "3", name: "Charlie Chaplin", role: "UI/UX Designer", email: "charlie.c@example.com", contactInfo: "Portfolio: charliedesigns.com" }, // No image
   { id: "4", name: "Diana Prince", role: "Backend Developer", email: "diana.prince@example.com", imageUrl: "/uploads/mock-diana.jpg" },
   { id: "5", name: "Ethan Hunt", role: "QA Tester", email: "ethan.hunt@example.com", contactInfo: "Available on Slack", imageUrl: "/uploads/mock-ethan.jpg" },
 ];
-global.mockMembers = mockMembers; // Ensure the global reference is set/updated
+let nextId = 6; // Simple ID incrementer
 
-let nextId = global.nextId || 6; // Simple ID incrementer, also make global
-global.nextId = nextId;
+// Attempt to make it globally accessible (very hacky, unreliable)
+if (typeof global !== 'undefined') {
+  (global ).mockMembers = mockMembers;
+  (global ).nextId = nextId;
+}
 // --------------------
 
 // Ensure the uploads directory exists (run once on server start)
@@ -39,15 +42,19 @@ const ensureUploadsDirExists = async () => {
 };
 ensureUploadsDirExists(); // Call it immediately
 
-export async function GET(request) {
-  // In a real app, fetch from DB here
+export async function GET(request) { // Removed type: NextRequest
+  // In a real app, fetch from MongoDB here
   try {
     // Simulate async operation if needed (e.g., DB query delay)
     // await new Promise(resolve => setTimeout(resolve, 50));
 
+    // Use the potentially globally updated array
+     const currentMembers = (typeof global !== 'undefined' && (global ).mockMembers) ? (global ).mockMembers : mockMembers;
+
+
     // Return the current list of members
     // Make sure image URLs are relative paths accessible by the client
-    return NextResponse.json({ success: true, data: mockMembers });
+    return NextResponse.json({ success: true, data: currentMembers });
 
   } catch (error) {
     console.error("Error fetching members:", error);
@@ -56,25 +63,25 @@ export async function GET(request) {
 }
 
 
-export async function POST(request) {
+export async function POST(request) { // Removed type: NextRequest
   // Real app: Parse, validate, handle file upload, save to DB.
   try {
     const formData = await request.formData();
-    const name = formData.get('name');
-    const role = formData.get('role');
-    const email = formData.get('email');
-    const contactInfo = formData.get('contactInfo'); // Will be null if not provided
-    const imageFile = formData.get('image'); // Will be null if not provided
+    const name = formData.get('name'); // Removed type assertion: as string
+    const role = formData.get('role'); // Removed type assertion: as string
+    const email = formData.get('email'); // Removed type assertion: as string
+    const contactInfo = formData.get('contactInfo'); // Removed type assertion: as string | undefined
+    const imageFile = formData.get('image'); // Removed type assertion: as File | undefined
 
     // Basic server-side validation (add more robust validation as needed)
     if (!name || !role || !email) {
       return NextResponse.json({ success: false, message: 'Missing required fields' }, { status: 400 });
     }
 
-    let imageUrl = undefined;
+    let imageUrl = undefined; // Removed type: string | undefined
     let imageSaved = false;
 
-    if (imageFile && typeof imageFile !== 'string' && imageFile.size > 0) {
+    if (imageFile && imageFile.size > 0) {
         // ** File Saving Logic **
         // This section attempts to save the file to `public/uploads`.
         // Needs proper error handling and potentially more robust filename generation.
@@ -108,21 +115,39 @@ export async function POST(request) {
     }
 
 
-    const newMember = {
-      id: String(nextId++),
+    // Use the potentially globally updated ID counter
+    let currentNextId = (typeof global !== 'undefined' && (global ).nextId) ? (global ).nextId : nextId;
+
+    const newMember = { // Removed type: TeamMember
+      id: String(currentNextId++),
       name,
       role,
       email,
-      contactInfo: contactInfo || undefined, // Ensure it's undefined if empty/null
+      contactInfo: contactInfo || undefined, // Ensure it's undefined if empty
       imageUrl, // Will be undefined if no image or save failed
     };
-    global.nextId = nextId; // Update global nextId
 
-
-    // Add to the in-memory array (which is the global mockMembers)
-    mockMembers.push(newMember);
-    console.log("Added new member:", newMember);
-    console.log("Current members:", mockMembers.map(m => m.name)); // Log current state
+     // Update the global counters if they exist
+     if (typeof global !== 'undefined') {
+        (global ).nextId = currentNextId;
+        if((global ).mockMembers) {
+            (global ).mockMembers.push(newMember);
+            console.log("Added new member (global):", newMember.name);
+            console.log("Current members (global):", (global ).mockMembers.map(m => m.name));
+        } else {
+            // Fallback to local if global isn't set up correctly
+            mockMembers.push(newMember);
+            nextId = currentNextId;
+             console.log("Added new member (local fallback):", newMember.name);
+             console.log("Current members (local fallback):", mockMembers.map(m => m.name));
+        }
+    } else {
+        // Fallback if global is not defined at all
+        mockMembers.push(newMember);
+        nextId = currentNextId;
+         console.log("Added new member (no global):", newMember.name);
+         console.log("Current members (no global):", mockMembers.map(m => m.name));
+    }
 
     // Return success response with the newly added member data
     return NextResponse.json({ success: true, message: "Member added successfully!", data: newMember }, { status: 201 });

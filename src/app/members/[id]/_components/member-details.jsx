@@ -4,23 +4,24 @@
 import * as React from "react";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"; // Added CardFooter
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button"; // Import Button for retry
-import { User, AlertTriangle, Mail, Info } from "lucide-react"; // Added more icons
+import { Button } from "@/components/ui/button"; // Added Button
+import { User, AlertTriangle, Mail, Info, Calendar } from "lucide-react"; // Added more icons
+// Removed type imports: import type { TeamMember, FetchMemberResponse } from '@/lib/types';
 // Optional: import { format } from 'date-fns'; // If you add date fields
 
 
 // Function to fetch a single member from the API
-async function fetchMemberById(id) {
+async function fetchMemberById(id) { // Removed type: string -> Promise<FetchMemberResponse>
   console.log(`Fetching member with ID: ${id} from API...`);
   try {
     const response = await fetch(`/api/members/${id}`, {
         cache: 'no-store', // Fetch fresh data for details view
     });
 
-    const result = await response.json(); // Parse the JSON response
+    const result = await response.json(); // Removed type: FetchMemberResponse
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404 Not Found, 500 Server Error)
@@ -31,7 +32,7 @@ async function fetchMemberById(id) {
     }
 
     // Check API's internal success flag if it exists (optional but good practice)
-    if (!result.success) {
+    if (result && !result.success) { // Check result exists before accessing success
        console.error(`API reported failure fetching member ${id}:`, result.error);
        return { success: false, error: result.message || "API indicated failure." };
     }
@@ -46,20 +47,22 @@ async function fetchMemberById(id) {
 }
 
 
-export default function MemberDetails({ memberId }) {
-  const [member, setMember] = React.useState(null);
+// Removed interface: MemberDetailsProps
+
+export default function MemberDetails({ memberId }) { // Removed type: MemberDetailsProps
+  const [member, setMember] = React.useState(null); // Removed type: TeamMember | null
   const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState(null);
+  const [error, setError] = React.useState(null); // Removed type: string | null
 
    // Function to load member data, separated for potential refresh
    const loadMember = async () => {
       setIsLoading(true);
       setError(null);
       const result = await fetchMemberById(memberId);
-      if (result.success && result.data) {
+      if (result?.success && result.data) { // Check result exists
         setMember(result.data);
       } else {
-        setError(result.error || "Failed to load member details.");
+        setError(result?.error || "Failed to load member details."); // Check result exists
       }
       setIsLoading(false);
    };

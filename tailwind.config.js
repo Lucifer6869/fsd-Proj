@@ -1,10 +1,13 @@
+// Removed type import: import type { Config } from "tailwindcss";
+const animate = require("tailwindcss-animate") // Use require for JS
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+module.exports = { // Use module.exports for JS
     darkMode: ["class"],
     content: [
-    "./src/pages/**/*.{js,jsx,ts,tsx,mdx}", // Added jsx
-    "./src/components/**/*.{js,jsx,ts,tsx,mdx}", // Added jsx
-    "./src/app/**/*.{js,jsx,ts,tsx,mdx}", // Added jsx
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}", // Keep ts/tsx for potential future use or partial migration
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
   	extend: {
@@ -89,5 +92,5 @@ module.exports = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
-};
+  plugins: [animate], // Use the required variable
+}; // Removed type assertion: satisfies Config;

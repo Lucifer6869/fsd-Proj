@@ -1,6 +1,7 @@
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
-import { cva } from "class-variance-authority"
+import { cva } from "class-variance-authority" // Removed type: type VariantProps
 
 import { cn } from "@/lib/utils"
 
@@ -33,7 +34,9 @@ const buttonVariants = cva(
   }
 )
 
-const Button = React.forwardRef(
+// Removed interface: ButtonProps
+
+const Button = React.forwardRef( // Removed types: HTMLButtonElement, ButtonProps
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     return (

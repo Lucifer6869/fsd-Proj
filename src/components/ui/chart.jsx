@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -8,7 +9,9 @@ import { cn } from "@/lib/utils"
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" }
 
-const ChartContext = React.createContext(null)
+// Removed types: ChartConfig, ChartContextProps
+
+const ChartContext = React.createContext(null) // Removed type: ChartContextProps | null
 
 function useChart() {
   const context = React.useContext(ChartContext)
@@ -20,7 +23,7 @@ function useChart() {
   return context
 }
 
-const ChartContainer = React.forwardRef(
+const ChartContainer = React.forwardRef( // Removed types
   ({ id, className, children, config, ...props }, ref) => {
   const uniqueId = React.useId()
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`
@@ -46,9 +49,9 @@ const ChartContainer = React.forwardRef(
 })
 ChartContainer.displayName = "Chart"
 
-const ChartStyle = ({ id, config }) => {
+const ChartStyle = ({ id, config }) => { // Removed types
   const colorConfig = Object.entries(config).filter(
-    ([, config]) => config.theme || config.color
+    ([, itemConfig]) => itemConfig.theme || itemConfig.color // Renamed config to itemConfig
   )
 
   if (!colorConfig.length) {
@@ -65,7 +68,7 @@ ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color =
-      itemConfig.theme?.[theme] ||
+      itemConfig.theme?.[theme ] || // Removed type assertion
       itemConfig.color
     return color ? `  --color-${key}: ${color};` : null
   })
@@ -81,7 +84,7 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
-const ChartTooltipContent = React.forwardRef(
+const ChartTooltipContent = React.forwardRef( // Removed types
   (
     {
       active,
@@ -112,7 +115,7 @@ const ChartTooltipContent = React.forwardRef(
       const itemConfig = getPayloadConfigFromPayload(config, item, key)
       const value =
         !labelKey && typeof label === "string"
-          ? config[label]?.label || label
+          ? config[label ]?.label || label // Removed type assertion
           : itemConfig?.label
 
       if (labelFormatter) {
@@ -128,7 +131,6 @@ const ChartTooltipContent = React.forwardRef(
       }
 
       return <div className={cn("font-medium", labelClassName)}>{value}</div>
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       label,
       labelFormatter,
@@ -191,7 +193,7 @@ const ChartTooltipContent = React.forwardRef(
                             {
                               "--color-bg": indicatorColor,
                               "--color-border": indicatorColor,
-                            }
+                            }// Removed type assertion
                           }
                         />
                       )
@@ -208,7 +210,7 @@ const ChartTooltipContent = React.forwardRef(
                           {itemConfig?.label || item.name}
                         </span>
                       </div>
-                      {item.value !== undefined && item.value !== null && ( // Check for undefined/null
+                      {item.value !== undefined && item.value !== null && ( // Check for undefined/null explicitly
                         <span className="font-mono font-medium tabular-nums text-foreground">
                           {item.value.toLocaleString()}
                         </span>
@@ -228,7 +230,7 @@ ChartTooltipContent.displayName = "ChartTooltip"
 
 const ChartLegend = RechartsPrimitive.Legend
 
-const ChartLegendContent = React.forwardRef(
+const ChartLegendContent = React.forwardRef( // Removed types
   (
     { className, hideIcon = false, payload, verticalAlign = "bottom", nameKey },
     ref
@@ -280,7 +282,7 @@ const ChartLegendContent = React.forwardRef(
 ChartLegendContent.displayName = "ChartLegend"
 
 // Helper to extract item config from a payload.
-function getPayloadConfigFromPayload(
+function getPayloadConfigFromPayload( // Removed types
   config,
   payload,
   key
@@ -296,24 +298,26 @@ function getPayloadConfigFromPayload(
       ? payload.payload
       : undefined
 
-  let configLabelKey = key
+  let configLabelKey = key // Removed type: string
 
   if (
     key in payload &&
-    typeof payload[key] === "string"
+    typeof payload[key ] === "string" // Removed type assertion
   ) {
-    configLabelKey = payload[key]
+    configLabelKey = payload[key ] // Removed type assertion
   } else if (
     payloadPayload &&
     key in payloadPayload &&
-    typeof payloadPayload[key] === "string"
+    typeof payloadPayload[key ] === "string" // Removed type assertion
   ) {
-    configLabelKey = payloadPayload[key]
+    configLabelKey = payloadPayload[
+      key // Removed type assertion
+    ] // Removed type assertion
   }
 
   return configLabelKey in config
     ? config[configLabelKey]
-    : config[key]
+    : config[key ] // Removed type assertion
 }
 
 export {

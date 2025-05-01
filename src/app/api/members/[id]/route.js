@@ -1,24 +1,24 @@
 // src/app/api/members/[id]/route.js
 import { NextRequest, NextResponse } from 'next/server';
+// Removed type import: import { TeamMember } from '@/lib/types';
 
 // --- IMPORTANT ---
 // This is a placeholder API route using the mock database.
-// Replace with actual database fetching logic using the member's ID.
+// Replace with actual MongoDB fetching logic using the member's ID.
 // -----------------
 
 // Assume mockMembers is accessible here because it's defined in the other route file's module scope.
 // This relies on module caching in Node.js. In a real app, use a proper DB connection.
-// We need to import the sibling route file just to potentially get access to the `mockMembers` array definition.
+// We need to import the route file just to potentially get access to the `mockMembers` array definition.
 // This is NOT a good pattern for real applications.
-import { GET as _GET, POST as _POST } from '../route'; // Import sibling route to potentially access shared variables (hacky)
+// import { GET as _GET, POST as _POST } from '../route'; // Import sibling route (might not work reliably in JS)
 
 // --- Access Mock Database (Hackish Way) ---
 // Directly accessing variables from another module like this is generally bad practice.
 // Ideally, the data source (DB connection, mock store) should be separate and imported by both.
-// But for this mock setup to work with the in-memory array defined in `../route.js`, we try this.
-// @ts-ignore - Accessing the mockMembers array defined in the other file (if possible in the runtime)
+// We define it here as a fallback and hope the other module initializes it globally if possible.
 let mockMembers = (global ).mockMembers || [
-   // Fallback if direct access doesn't work (less likely to be consistent)
+   // Fallback definition
    { id: "1", name: "Alice Wonderland", role: "Project Manager", email: "alice.wonder@example.com", contactInfo: "LinkedIn: /in/alicew", imageUrl: "/uploads/mock-alice.jpg" },
    { id: "2", name: "Bob The Builder", role: "Lead Developer", email: "bob.builder@example.com", contactInfo: "555-1234", imageUrl: "/uploads/mock-bob.jpg" },
    { id: "3", name: "Charlie Chaplin", role: "UI/UX Designer", email: "charlie.c@example.com", contactInfo: "Portfolio: charliedesigns.com" }, // No image
@@ -29,22 +29,19 @@ let mockMembers = (global ).mockMembers || [
 if ((global ).mockMembers) {
     mockMembers = (global ).mockMembers;
 }
-// Update global reference if needed
-global.mockMembers = mockMembers;
-
 // -----------------------------------------
 
 
 export async function GET(
-  request,
-  { params }
+  request, // Removed type: NextRequest
+  { params } // Removed type: { params: { id: string } }
 ) {
   const memberId = params.id;
 
   // Log the state of mockMembers when this route is hit
   // console.log("GET /api/members/[id] - Current mockMembers:", mockMembers.map(m => ({id: m.id, name: m.name})));
 
-  // In a real app, fetch from DB using the memberId
+  // In a real app, fetch from MongoDB using the memberId
   try {
     // Simulate async operation if needed
     // await new Promise(resolve => setTimeout(resolve, 50));

@@ -1,5 +1,6 @@
+
 import * as React from "react"
-import { cva } from "class-variance-authority"
+import { cva } from "class-variance-authority" // Removed type: type VariantProps
 
 import { cn } from "@/lib/utils"
 
@@ -23,7 +24,9 @@ const badgeVariants = cva(
   }
 )
 
-function Badge({ className, variant, ...props }) {
+// Removed interface: BadgeProps
+
+function Badge({ className, variant, ...props }) { // Removed type: BadgeProps
   return (
     <div className={cn(badgeVariants({ variant }), className)} {...props} />
   )

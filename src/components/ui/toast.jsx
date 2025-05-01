@@ -1,15 +1,16 @@
+
 "use client"
 
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
-import { cva } from "class-variance-authority"
+import { cva } from "class-variance-authority" // Removed type: type VariantProps
 import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
 const ToastProvider = ToastPrimitives.Provider
 
-const ToastViewport = React.forwardRef(
+const ToastViewport = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <ToastPrimitives.Viewport
     ref={ref}
@@ -38,7 +39,7 @@ const toastVariants = cva(
   }
 )
 
-const Toast = React.forwardRef(
+const Toast = React.forwardRef( // Removed types
   ({ className, variant, ...props }, ref) => {
   return (
     <ToastPrimitives.Root
@@ -50,7 +51,7 @@ const Toast = React.forwardRef(
 })
 Toast.displayName = ToastPrimitives.Root.displayName
 
-const ToastAction = React.forwardRef(
+const ToastAction = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <ToastPrimitives.Action
     ref={ref}
@@ -63,7 +64,7 @@ const ToastAction = React.forwardRef(
 ))
 ToastAction.displayName = ToastPrimitives.Action.displayName
 
-const ToastClose = React.forwardRef(
+const ToastClose = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <ToastPrimitives.Close
     ref={ref}
@@ -79,7 +80,7 @@ const ToastClose = React.forwardRef(
 ))
 ToastClose.displayName = ToastPrimitives.Close.displayName
 
-const ToastTitle = React.forwardRef(
+const ToastTitle = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <ToastPrimitives.Title
     ref={ref}
@@ -89,7 +90,7 @@ const ToastTitle = React.forwardRef(
 ))
 ToastTitle.displayName = ToastPrimitives.Title.displayName
 
-const ToastDescription = React.forwardRef(
+const ToastDescription = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <ToastPrimitives.Description
     ref={ref}
@@ -99,7 +100,11 @@ const ToastDescription = React.forwardRef(
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
+// Removed types: ToastProps, ToastActionElement
+
 export {
+  // type ToastProps, // Removed
+  // type ToastActionElement, // Removed
   ToastProvider,
   ToastViewport,
   Toast,

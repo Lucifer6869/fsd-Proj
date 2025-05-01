@@ -1,8 +1,9 @@
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const Card = React.forwardRef(
+const Card = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <div
     ref={ref}
@@ -15,7 +16,7 @@ const Card = React.forwardRef(
 ))
 Card.displayName = "Card"
 
-const CardHeader = React.forwardRef(
+const CardHeader = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <div
     ref={ref}
@@ -25,9 +26,9 @@ const CardHeader = React.forwardRef(
 ))
 CardHeader.displayName = "CardHeader"
 
-const CardTitle = React.forwardRef(
-  ({ className, as: Comp = 'h3', ...props }, ref) => ( // Allow customizing the tag, default to h3
-  <Comp // Use the dynamic component
+const CardTitle = React.forwardRef( // Removed types
+  ({ className, ...props }, ref) => (
+  <div // Changed from h3 to div for more flexibility
     ref={ref}
     className={cn(
       "text-2xl font-semibold leading-none tracking-tight",
@@ -38,9 +39,9 @@ const CardTitle = React.forwardRef(
 ))
 CardTitle.displayName = "CardTitle"
 
-const CardDescription = React.forwardRef(
-   ({ className, as: Comp = 'p', ...props }, ref) => ( // Allow customizing the tag, default to p
-  <Comp // Use the dynamic component
+const CardDescription = React.forwardRef( // Removed types
+  ({ className, ...props }, ref) => (
+  <div // Changed from p to div for more flexibility
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
@@ -48,13 +49,13 @@ const CardDescription = React.forwardRef(
 ))
 CardDescription.displayName = "CardDescription"
 
-const CardContent = React.forwardRef(
+const CardContent = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
 ))
 CardContent.displayName = "CardContent"
 
-const CardFooter = React.forwardRef(
+const CardFooter = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <div
     ref={ref}

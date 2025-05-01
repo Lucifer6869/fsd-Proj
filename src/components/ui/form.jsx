@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -7,6 +8,7 @@ import {
   Controller,
   FormProvider,
   useFormContext,
+  // Removed types: type ControllerProps, type FieldPath, type FieldValues,
 } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
@@ -14,11 +16,15 @@ import { Label } from "@/components/ui/label"
 
 const Form = FormProvider
 
-const FormFieldContext = React.createContext({})
+// Removed types: FormFieldContextValue
 
-const FormField = ({
+const FormFieldContext = React.createContext(
+  {} // Removed type assertion: as FormFieldContextValue
+)
+
+const FormField = ({ // Removed generic types
   ...props
-}) => {
+}) => { // Removed type: ControllerProps<TFieldValues, TName>
   return (
     <FormFieldContext.Provider value={{ name: props.name }}>
       <Controller {...props} />
@@ -31,7 +37,8 @@ const useFormField = () => {
   const itemContext = React.useContext(FormItemContext)
   const { getFieldState, formState } = useFormContext()
 
-  const fieldState = getFieldState(fieldContext.name, formState)
+  // Ensure fieldContext.name is valid before calling getFieldState
+  const fieldState = fieldContext?.name ? getFieldState(fieldContext.name, formState) : {};
 
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>")
@@ -49,9 +56,13 @@ const useFormField = () => {
   }
 }
 
-const FormItemContext = React.createContext({})
+// Removed type: FormItemContextValue
 
-const FormItem = React.forwardRef(
+const FormItemContext = React.createContext(
+  {} // Removed type assertion: as FormItemContextValue
+)
+
+const FormItem = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => {
   const id = React.useId()
 
@@ -63,7 +74,7 @@ const FormItem = React.forwardRef(
 })
 FormItem.displayName = "FormItem"
 
-const FormLabel = React.forwardRef(
+const FormLabel = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => {
   const { error, formItemId } = useFormField()
 
@@ -78,7 +89,7 @@ const FormLabel = React.forwardRef(
 })
 FormLabel.displayName = "FormLabel"
 
-const FormControl = React.forwardRef(
+const FormControl = React.forwardRef( // Removed types
   ({ ...props }, ref) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
@@ -98,7 +109,7 @@ const FormControl = React.forwardRef(
 })
 FormControl.displayName = "FormControl"
 
-const FormDescription = React.forwardRef(
+const FormDescription = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => {
   const { formDescriptionId } = useFormField()
 
@@ -113,10 +124,10 @@ const FormDescription = React.forwardRef(
 })
 FormDescription.displayName = "FormDescription"
 
-const FormMessage = React.forwardRef(
+const FormMessage = React.forwardRef( // Removed types
   ({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
-  const body = error ? String(error?.message ?? "") : children // Ensure error.message is a string
+  const body = error ? String(error?.message ?? "") : children
 
   if (!body) {
     return null

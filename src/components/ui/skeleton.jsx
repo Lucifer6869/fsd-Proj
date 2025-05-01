@@ -1,6 +1,7 @@
+
 import { cn } from "@/lib/utils"
 
-function Skeleton({
+function Skeleton({ // Removed type: React.HTMLAttributes<HTMLDivElement>
   className,
   ...props
 }) {

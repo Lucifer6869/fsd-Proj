@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -12,7 +13,7 @@ const AlertDialogTrigger = AlertDialogPrimitive.Trigger
 
 const AlertDialogPortal = AlertDialogPrimitive.Portal
 
-const AlertDialogOverlay = React.forwardRef(
+const AlertDialogOverlay = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Overlay
     className={cn(
@@ -25,7 +26,7 @@ const AlertDialogOverlay = React.forwardRef(
 ))
 AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName
 
-const AlertDialogContent = React.forwardRef(
+const AlertDialogContent = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <AlertDialogPortal>
     <AlertDialogOverlay />
@@ -41,7 +42,7 @@ const AlertDialogContent = React.forwardRef(
 ))
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName
 
-const AlertDialogHeader = ({
+const AlertDialogHeader = ({ // Removed type: React.HTMLAttributes<HTMLDivElement>
   className,
   ...props
 }) => (
@@ -55,7 +56,7 @@ const AlertDialogHeader = ({
 )
 AlertDialogHeader.displayName = "AlertDialogHeader"
 
-const AlertDialogFooter = ({
+const AlertDialogFooter = ({ // Removed type: React.HTMLAttributes<HTMLDivElement>
   className,
   ...props
 }) => (
@@ -69,7 +70,7 @@ const AlertDialogFooter = ({
 )
 AlertDialogFooter.displayName = "AlertDialogFooter"
 
-const AlertDialogTitle = React.forwardRef(
+const AlertDialogTitle = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Title
     ref={ref}
@@ -79,7 +80,7 @@ const AlertDialogTitle = React.forwardRef(
 ))
 AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName
 
-const AlertDialogDescription = React.forwardRef(
+const AlertDialogDescription = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Description
     ref={ref}
@@ -90,7 +91,7 @@ const AlertDialogDescription = React.forwardRef(
 AlertDialogDescription.displayName =
   AlertDialogPrimitive.Description.displayName
 
-const AlertDialogAction = React.forwardRef(
+const AlertDialogAction = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Action
     ref={ref}
@@ -100,7 +101,7 @@ const AlertDialogAction = React.forwardRef(
 ))
 AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName
 
-const AlertDialogCancel = React.forwardRef(
+const AlertDialogCancel = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Cancel
     ref={ref}

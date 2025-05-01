@@ -1,5 +1,5 @@
 import MemberDetails from './_components/member-details';
-import { Card, CardHeader, CardContent } from '@/components/ui/card'; // Removed unused imports
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -15,7 +15,7 @@ function LoadingDetails() {
            <Skeleton className="h-8 w-3/4 mb-2" />
            <Skeleton className="h-4 w-1/2" />
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-6"> {/* Added padding */}
             <div className="flex justify-center mb-6">
                 <Skeleton className="h-32 w-32 rounded-full" />
             </div>
@@ -37,7 +37,7 @@ function LoadingDetails() {
 }
 
 
-export default function MemberDetailPage({ params }) {
+export default function MemberDetailPage({ params }) { // Removed type: { params: { id: string } }
   const memberId = params.id;
 
   return (

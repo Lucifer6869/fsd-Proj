@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -12,7 +13,7 @@ const SelectGroup = SelectPrimitive.Group
 
 const SelectValue = SelectPrimitive.Value
 
-const SelectTrigger = React.forwardRef(
+const SelectTrigger = React.forwardRef( // Removed types
   ({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
@@ -30,7 +31,7 @@ const SelectTrigger = React.forwardRef(
 ))
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 
-const SelectScrollUpButton = React.forwardRef(
+const SelectScrollUpButton = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollUpButton
     ref={ref}
@@ -45,7 +46,7 @@ const SelectScrollUpButton = React.forwardRef(
 ))
 SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName
 
-const SelectScrollDownButton = React.forwardRef(
+const SelectScrollDownButton = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollDownButton
     ref={ref}
@@ -61,7 +62,7 @@ const SelectScrollDownButton = React.forwardRef(
 SelectScrollDownButton.displayName =
   SelectPrimitive.ScrollDownButton.displayName
 
-const SelectContent = React.forwardRef(
+const SelectContent = React.forwardRef( // Removed types
   ({ className, children, position = "popper", ...props }, ref) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
@@ -91,7 +92,7 @@ const SelectContent = React.forwardRef(
 ))
 SelectContent.displayName = SelectPrimitive.Content.displayName
 
-const SelectLabel = React.forwardRef(
+const SelectLabel = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
@@ -101,7 +102,7 @@ const SelectLabel = React.forwardRef(
 ))
 SelectLabel.displayName = SelectPrimitive.Label.displayName
 
-const SelectItem = React.forwardRef(
+const SelectItem = React.forwardRef( // Removed types
   ({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
@@ -122,7 +123,7 @@ const SelectItem = React.forwardRef(
 ))
 SelectItem.displayName = SelectPrimitive.Item.displayName
 
-const SelectSeparator = React.forwardRef(
+const SelectSeparator = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}

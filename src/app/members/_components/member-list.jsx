@@ -3,74 +3,72 @@
 
 import * as React from "react";
 import Link from "next/link";
-// import Image from "next/image"; // Keep if using next/image later
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { User, AlertTriangle } from "lucide-react";
+// Removed type imports: import type { TeamMember, FetchMembersResponse } from '@/lib/types';
 
 // Function to fetch members from the API endpoint
-async function fetchMembers() {
+async function fetchMembers() { // Removed return type: Promise<FetchMembersResponse>
   console.log("Fetching members from API...");
   try {
     const response = await fetch('/api/members', {
         cache: 'no-store', // Prevent caching to get the latest list
     });
 
-    // Check if the response status indicates failure
+    // Check if the response status is indicates failure
     if (!response.ok) {
-        let errorData = {};
-        try {
-            errorData = await response.json(); // Try to parse error body
-        } catch (parseError) {
-            console.error("Could not parse error response:", parseError);
-        }
+        const errorData = await response.json().catch(() => ({})); // Try to parse error body
         console.error(`API Error: ${response.status}`, errorData);
-         throw new Error(errorData.message || `Failed to fetch members. Status: ${response.status}`);
+         // Return structure matching expected error format
+         return { success: false, error: errorData.message || `Failed to fetch members. Status: ${response.status}` };
     }
 
-    const result = await response.json(); // Parse the JSON response
+    const result = await response.json(); // Removed type: FetchMembersResponse
 
     // Additional check if the API returns a specific success flag
-    if (!result.success) {
+    if (result && !result.success) { // Check result exists
         console.error("API reported failure:", result.error);
-        throw new Error(result.message || "Failed to fetch members.");
+        // Return structure matching expected error format
+        return { success: false, error: result.message || "Failed to fetch members." };
     }
 
-     console.log("Fetched members successfully:", result.data?.length);
+     console.log("Fetched members successfully:", result?.data?.length);
      return result; // Return the successful response { success: true, data: TeamMember[] }
 
   } catch (error) {
     console.error("Error fetching members:", error);
-     // Ensure the returned object matches expected structure on error
+     // Ensure the returned object matches FetchMembersResponse structure on error
      return { success: false, error: error instanceof Error ? error.message : "An unknown error occurred fetching members." };
   }
 }
 
 
 export default function MemberList() {
-  const [members, setMembers] = React.useState([]);
+  const [members, setMembers] = React.useState([]); // Removed type: TeamMember[]
   const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState(null);
+  const [error, setError] = React.useState(null); // Removed type: string | null
 
   // Function to load members, separated for potential refresh logic
   const loadMembers = async () => {
       setIsLoading(true);
       setError(null);
       const result = await fetchMembers();
-      if (result.success && Array.isArray(result.data)) { // Ensure data is an array
+      if (result?.success && Array.isArray(result.data)) { // Check result and data type
         setMembers(result.data);
       } else {
-        setError(result.error || "An unknown error occurred while loading members.");
-        setMembers([]); // Clear members on error
+        setError(result?.error || "An unknown error occurred while loading members."); // Check result exists
       }
       setIsLoading(false);
   };
 
   React.useEffect(() => {
     loadMembers(); // Load members on initial component mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures this runs once on mount
 
 
@@ -103,7 +101,6 @@ export default function MemberList() {
         <AlertTitle>Error Loading Members</AlertTitle>
         <AlertDescription>
             {error}
-            {/* Added retry button styling */}
             <Button variant="link" onClick={loadMembers} className="p-0 h-auto ml-2 text-destructive-foreground underline">Try Again?</Button>
         </AlertDescription>
       </Alert>
@@ -146,7 +143,7 @@ export default function MemberList() {
                 ) : (
                    // Fallback if no image URL
                    <AvatarFallback>
-                     {member.name?.split(' ').map(n => n[0]).join('').toUpperCase() || <User />}
+                     {member.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                    </AvatarFallback>
                 )}
             </Avatar>

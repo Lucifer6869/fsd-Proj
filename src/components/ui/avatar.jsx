@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -5,7 +6,7 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar"
 
 import { cn } from "@/lib/utils"
 
-const Avatar = React.forwardRef(
+const Avatar = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <AvatarPrimitive.Root
     ref={ref}
@@ -18,7 +19,7 @@ const Avatar = React.forwardRef(
 ))
 Avatar.displayName = AvatarPrimitive.Root.displayName
 
-const AvatarImage = React.forwardRef(
+const AvatarImage = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <AvatarPrimitive.Image
     ref={ref}
@@ -28,7 +29,7 @@ const AvatarImage = React.forwardRef(
 ))
 AvatarImage.displayName = AvatarPrimitive.Image.displayName
 
-const AvatarFallback = React.forwardRef(
+const AvatarFallback = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <AvatarPrimitive.Fallback
     ref={ref}

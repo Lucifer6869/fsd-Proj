@@ -4,11 +4,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "jsx": "preserve",
-    "checkJs": false, // Optional: Set to true for basic JS type checking
-    "esModuleInterop": true,
-    "moduleResolution": "node"
+    "jsx": "preserve" // Important for React/Next.js JSX syntax
   },
-  "include": ["src/**/*.js", "src/**/*.jsx", "next-env.d.ts"], // Include JS/JSX files
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"], // Include all files in src
+  "exclude": ["node_modules", ".next"]
 }

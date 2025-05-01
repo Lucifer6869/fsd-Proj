@@ -1,4 +1,5 @@
-
+// Removed type import: import type { Metadata } from "next";
+// Removed type import: import { Inter } from "next/font/google"; // Changed to Inter for a standard sans-serif
 import { Geist, Geist_Mono } from 'next/font/google'; // Keeping Geist as requested
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster"; // Import Toaster
@@ -16,23 +17,25 @@ const geistMono = Geist_Mono({
 });
 
 
-export const metadata = {
+export const metadata = { // Removed type: Metadata
   title: "TeamUp - Team Management", // Updated title
   description: "Manage your student team members efficiently with TeamUp.", // Updated description
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({
+  children,
+}) { // Removed types: Readonly<{ children: React.ReactNode; }>
   return (
     <html lang="en">
       <body
         className={cn(
-          `${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col` // Use Geist variables and add flex structure
+          `${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-background text-foreground` // Use Geist variables and add flex structure, added background/foreground
         )}
       >
-        {/* Add padding to the main content area */}
-        <main className="flex-grow p-4 md:p-6">
-          {children}
-        </main>
+        {/* Added container and padding for consistent page width */}
+        <div className="container mx-auto px-4 py-8 flex-grow">
+            {children}
+        </div>
         <Toaster /> {/* Add Toaster for notifications */}
       </body>
     </html>

@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -8,7 +9,7 @@ import { cn } from "@/lib/utils"
 
 const Accordion = AccordionPrimitive.Root
 
-const AccordionItem = React.forwardRef(
+const AccordionItem = React.forwardRef( // Removed types
   ({ className, ...props }, ref) => (
   <AccordionPrimitive.Item
     ref={ref}
@@ -18,7 +19,7 @@ const AccordionItem = React.forwardRef(
 ))
 AccordionItem.displayName = "AccordionItem"
 
-const AccordionTrigger = React.forwardRef(
+const AccordionTrigger = React.forwardRef( // Removed types
   ({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
@@ -36,7 +37,7 @@ const AccordionTrigger = React.forwardRef(
 ))
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName
 
-const AccordionContent = React.forwardRef(
+const AccordionContent = React.forwardRef( // Removed types
   ({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
     ref={ref}
