@@ -47,7 +47,8 @@ export async function GET(
     // await new Promise(resolve => setTimeout(resolve, 50));
 
     // Find member in the potentially shared (but unreliable) mock array
-    const member = mockMembers.find(m => m.id === memberId);
+    const currentMembers = (typeof global !== 'undefined' && (global ).mockMembers) ? (global ).mockMembers : mockMembers;
+    const member = currentMembers.find(m => m.id === memberId);
 
     if (member) {
       // Return the found member
@@ -63,6 +64,62 @@ export async function GET(
   }
 }
 
-// Add PUT (update) and DELETE handlers here if needed in the future.
+export async function DELETE(
+  request, // Removed type: NextRequest
+  { params } // Removed type: { params: { id: string } }
+) {
+  const memberId = params.id;
+  console.log(`DELETE /api/members/${memberId} received`);
+
+  try {
+    // Access the potentially global array
+    let currentMembers = (typeof global !== 'undefined' && (global ).mockMembers) ? (global ).mockMembers : mockMembers;
+    const memberIndex = currentMembers.findIndex(m => m.id === memberId);
+
+    if (memberIndex === -1) {
+       console.log(`Member with ID ${memberId} not found for deletion.`);
+       return NextResponse.json({ success: false, message: 'Member not found' }, { status: 404 });
+    }
+
+    // Remove the member from the array
+    const deletedMember = currentMembers.splice(memberIndex, 1)[0]; // Remove and get the deleted item
+    console.log(`Removed member: ${deletedMember.name}`);
+
+     // If using the global hack, update the global array reference directly.
+     // If not, this update affects the local `mockMembers` for this module instance.
+     if (typeof global !== 'undefined' && (global ).mockMembers) {
+         (global ).mockMembers = currentMembers;
+         console.log("Global mockMembers updated after deletion.");
+     } else {
+         mockMembers = currentMembers; // Update local if global doesn't exist
+         console.log("Local mockMembers updated after deletion.");
+     }
+
+    // Optional: Delete associated image file if it exists
+    if (deletedMember.imageUrl && deletedMember.imageUrl.startsWith('/uploads/')) {
+        // Implement file deletion logic here (e.g., using fs.unlink)
+        // Be cautious with file paths and error handling.
+        // Example (needs fs import and error handling):
+        // const imagePath = path.join(process.cwd(), 'public', deletedMember.imageUrl);
+        // try {
+        //   await fs.unlink(imagePath);
+        //   console.log(`Deleted image file: ${imagePath}`);
+        // } catch (fileError) {
+        //   console.error(`Error deleting image file ${imagePath}:`, fileError);
+        //   // Decide if this should cause the API call to fail or just log a warning
+        // }
+    }
+
+    return NextResponse.json({ success: true, message: 'Member deleted successfully' });
+
+  } catch (error) {
+    console.error(`Error deleting member ${memberId}:`, error);
+    return NextResponse.json({ success: false, message: 'Error deleting member', error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+  }
+}
+
+
+// Add PUT (update) handler here if needed in the future.
 // export async function PUT(request, { params }) { ... }
-// export async function DELETE(request, { params }) { ... }
+
+```

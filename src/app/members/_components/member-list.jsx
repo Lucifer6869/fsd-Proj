@@ -1,16 +1,29 @@
 
+
 "use client";
 
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button"; // Import buttonVariants
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { User, AlertTriangle } from "lucide-react";
-// Removed type imports: import type { TeamMember, FetchMembersResponse } from '@/lib/types';
+import { User, AlertTriangle, Trash2, Loader2 } from "lucide-react"; // Added Trash2, Loader2
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useToast } from "@/hooks/use-toast"; // Added useToast
+
 
 // Function to fetch members from the API endpoint
 async function fetchMembers() { // Removed return type: Promise<FetchMembersResponse>
@@ -47,11 +60,44 @@ async function fetchMembers() { // Removed return type: Promise<FetchMembersResp
   }
 }
 
+// Function to delete a member via API
+async function deleteMember(id) { // Removed type: string -> Promise<{ success: boolean; message?: string; error?: string }>
+    console.log(`Attempting to delete member with ID: ${id}`);
+    try {
+        const response = await fetch(`/api/members/${id}`, {
+            method: 'DELETE',
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            console.error(`API Error deleting member ${id}: ${response.status}`, result);
+            return { success: false, error: result.message || `Request failed with status ${response.status}` };
+        }
+
+        if (result && !result.success) {
+             console.error(`API reported failure deleting member ${id}:`, result.error);
+            return { success: false, error: result.message || "API indicated failure during deletion." };
+        }
+
+        console.log(`Member ${id} deleted successfully via API.`);
+        return { success: true, message: result.message || 'Member deleted successfully' };
+
+    } catch (error) {
+        console.error(`Network or fetch error deleting member ${id}:`, error);
+        return { success: false, error: error instanceof Error ? error.message : "An unknown network error occurred during deletion" };
+    }
+}
+
 
 export default function MemberList() {
   const [members, setMembers] = React.useState([]); // Removed type: TeamMember[]
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState(null); // Removed type: string | null
+  const [isDeleting, setIsDeleting] = React.useState(false); // State for delete loading
+  const [memberToDelete, setMemberToDelete] = React.useState(null); // Removed type: TeamMember | null
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
+  const { toast } = useToast();
 
   // Function to load members, separated for potential refresh logic
   const loadMembers = async () => {
@@ -71,6 +117,37 @@ export default function MemberList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures this runs once on mount
 
+  const openDeleteConfirm = (member) => { // Removed type: TeamMember
+      setMemberToDelete(member);
+      setIsConfirmDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!memberToDelete) return;
+
+    setIsDeleting(true);
+    const result = await deleteMember(memberToDelete.id);
+
+    if (result.success) {
+      toast({
+        title: "Success!",
+        description: result.message || "Member removed successfully.",
+      });
+      // Update state to remove the member visually
+      setMembers((prevMembers) => prevMembers.filter(m => m.id !== memberToDelete.id));
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error Removing Member",
+        description: result.error || "Could not remove the member. Please try again.",
+      });
+    }
+
+    setIsDeleting(false);
+    setIsConfirmDialogOpen(false);
+    setMemberToDelete(null);
+  };
+
 
   if (isLoading) {
     return (
@@ -85,8 +162,9 @@ export default function MemberList() {
                  <Skeleton className="h-4 w-[100px]" />
                </div>
             </CardHeader>
-            <CardFooter className="p-4 pt-0">
-                <Skeleton className="h-8 w-full" />
+            <CardFooter className="p-4 pt-0 flex gap-2"> {/* Adjusted footer for two buttons */}
+                <Skeleton className="h-8 w-1/2" />
+                <Skeleton className="h-8 w-1/2" />
             </CardFooter>
           </Card>
         ))}
@@ -124,6 +202,7 @@ export default function MemberList() {
 
 
   return (
+    <>
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {members.map((member) => (
         <Card key={member.id} className="shadow-md overflow-hidden flex flex-col transition-shadow hover:shadow-lg">
@@ -153,13 +232,54 @@ export default function MemberList() {
              </div>
           </CardHeader>
           {/* Optional CardContent can go here */}
-          <CardFooter className="p-4 pt-0 mt-auto"> {/* mt-auto pushes footer down */}
-            <Button variant="outline" size="sm" className="w-full" asChild>
-              <Link href={`/members/${member.id}`}>View Details</Link>
+          <CardFooter className="p-4 pt-0 mt-auto flex gap-2"> {/* mt-auto pushes footer down, added gap */}
+            <Button variant="outline" size="sm" className="flex-1" asChild>
+              <Link href={`/members/${member.id}`}>View</Link>
+            </Button>
+             <Button
+                variant="destructive"
+                size="sm"
+                className="flex-1"
+                onClick={() => openDeleteConfirm(member)}
+                disabled={isDeleting && memberToDelete?.id === member.id}
+              >
+                 {isDeleting && memberToDelete?.id === member.id ? (
+                     <Loader2 className="h-4 w-4 animate-spin" />
+                 ) : (
+                     <Trash2 className="h-4 w-4" />
+                 )}
+                 <span className="ml-1">{isDeleting && memberToDelete?.id === member.id ? 'Removing...' : 'Remove'}</span>
             </Button>
           </CardFooter>
         </Card>
       ))}
     </div>
+
+     {/* Confirmation Dialog */}
+     <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently remove{' '}
+              <strong>{memberToDelete?.name}</strong> from the team.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className={buttonVariants({ variant: "destructive" })} // Ensure it uses destructive variant
+             >
+              {isDeleting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              {isDeleting ? 'Removing...' : 'Yes, remove member'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
