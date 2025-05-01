@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -18,6 +19,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import Image from 'next/image';
+import { useRouter } from 'next/navigation'; // Import useRouter for redirection
+import type { AddMemberResponse } from '@/lib/types'; // Import the response type
 
 // Define Zod schema for validation
 const formSchema = z.object({
@@ -25,34 +28,47 @@ const formSchema = z.object({
   role: z.string().min(2, { message: "Role must be at least 2 characters." }).max(50),
   email: z.string().email({ message: "Invalid email address." }),
   contactInfo: z.string().optional(), // Optional contact info (e.g., phone)
-  image: z.instanceof(File).optional(), // Allow optional file upload
-  // Add other fields if needed
+  image: z.instanceof(File).optional().refine(
+      (file) => !file || file.size <= 1024 * 1024 * 2, // Example: Max 2MB
+      `Image size must be less than 2MB.`
+    ).refine(
+      (file) => !file || ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type),
+      "Only .jpg, .png, .gif, .webp formats are supported."
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-// Mock function for backend submission (replace with actual API call)
-async function submitMemberData(data: FormData): Promise<{ success: boolean; message: string }> {
-  console.log("Submitting data:", Object.fromEntries(data.entries()));
-  // Simulate API call delay
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+// Updated function to match the API response structure
+async function submitMemberData(data: FormData): Promise<AddMemberResponse> {
+  console.log("Submitting member data via API...");
+  try {
+    const response = await fetch('/api/members', {
+      method: 'POST',
+      body: data,
+      // Headers are not needed for FormData by default, browser sets Content-Type
+    });
 
-  // Simulate success/failure
-  // In a real app, this would be:
-  // const response = await fetch('/api/members', { method: 'POST', body: data });
-  // const result = await response.json();
-  // return result;
+    const result: AddMemberResponse = await response.json(); // Parse the JSON response
 
-  const shouldSucceed = Math.random() > 0.2; // 80% success rate for demo
-  if (shouldSucceed) {
-     return { success: true, message: "Member added successfully!" };
-  } else {
-     return { success: false, message: "Failed to add member. Please try again." };
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 400, 500)
+      console.error(`API Error: ${response.status}`, result);
+      return { success: false, message: result.message || `Request failed with status ${response.status}`, error: result.error };
+    }
+
+    console.log("API Response:", result);
+    return result; // Return the parsed response
+
+  } catch (error) {
+    console.error("Network or fetch error:", error);
+    return { success: false, message: "Failed to connect to the server. Please try again.", error: error instanceof Error ? error.message : String(error) };
   }
 }
 
 export default function AddMemberForm() {
   const { toast } = useToast();
+  const router = useRouter(); // Initialize router
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [previewImage, setPreviewImage] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -72,7 +88,17 @@ export default function AddMemberForm() {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      form.setValue("image", file);
+      // Validate file size and type again on client-side for immediate feedback
+       const validation = formSchema.shape.image.safeParse(file);
+       if (!validation.success) {
+            form.setError("image", { type: "manual", message: validation.error.errors[0].message });
+            setPreviewImage(null);
+             // Optionally clear the input value
+             if (fileInputRef.current) fileInputRef.current.value = "";
+            return;
+       }
+
+      form.setValue("image", file, { shouldValidate: true }); // Trigger validation
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result as string);
@@ -95,13 +121,16 @@ export default function AddMemberForm() {
     if (values.contactInfo) {
       formData.append('contactInfo', values.contactInfo);
     }
-    if (values.image) {
+    // Only append image if it exists and is a File object
+    if (values.image instanceof File) {
       formData.append('image', values.image);
+      console.log("Appending image to FormData:", values.image.name);
+    } else {
+       console.log("No valid image file to append.");
     }
 
     try {
-       // **IMPORTANT**: Replace `submitMemberData` with your actual API call logic
-       // using fetch or axios to POST to your backend `/api/members` endpoint.
+       // Call the updated function to submit data to the actual API endpoint
        const result = await submitMemberData(formData);
 
       if (result.success) {
@@ -109,24 +138,29 @@ export default function AddMemberForm() {
           title: "Success!",
           description: result.message,
         });
-        form.reset(); // Reset form after successful submission
+        form.reset(); // Reset form fields
         setPreviewImage(null); // Clear image preview
         if (fileInputRef.current) {
           fileInputRef.current.value = ""; // Clear file input visually
         }
+        // Redirect to the members list page after successful addition
+        router.push('/members');
+        router.refresh(); // Optional: Force a refresh of the members page data if needed
       } else {
         toast({
           variant: "destructive",
-          title: "Error",
-          description: result.message,
+          title: "Error Adding Member",
+          description: result.message || "An unknown error occurred.",
         });
       }
     } catch (error) {
-      console.error("Submission error:", error);
+      // This catch block might be redundant if submitMemberData handles errors,
+      // but good for catching unexpected client-side issues during the process.
+      console.error("Form submission process error:", error);
       toast({
         variant: "destructive",
         title: "Submission Error",
-        description: "An unexpected error occurred. Please check the console.",
+        description: "An unexpected error occurred. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -136,45 +170,49 @@ export default function AddMemberForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Name Field */}
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel>Full Name *</FormLabel>
               <FormControl>
-                <Input placeholder="Enter member's full name" {...field} />
+                <Input placeholder="Enter member's full name" {...field} required aria-required="true" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        {/* Role Field */}
         <FormField
           control={form.control}
           name="role"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Role</FormLabel>
+              <FormLabel>Role *</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Frontend Developer, Designer" {...field} />
+                <Input placeholder="e.g., Frontend Developer, Designer" {...field} required aria-required="true" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        {/* Email Field */}
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email Address</FormLabel>
+              <FormLabel>Email Address *</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Enter member's email" {...field} />
+                <Input type="email" placeholder="Enter member's email" {...field} required aria-required="true" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        {/* Contact Info Field */}
         <FormField
           control={form.control}
           name="contactInfo"
@@ -189,19 +227,21 @@ export default function AddMemberForm() {
           )}
         />
 
+        {/* Image Upload Field */}
          <FormField
           control={form.control}
           name="image"
-          render={() => ( // We don't use field directly here, manage through state/ref
+          render={({ fieldState }) => ( // Use fieldState to access errors specifically for image
             <FormItem>
-              <FormLabel>Profile Image (Optional)</FormLabel>
+              <FormLabel>Profile Image (Optional, Max 2MB)</FormLabel>
               <FormControl>
                 <Input
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg, image/png, image/gif, image/webp"
                     onChange={handleImageChange}
                     ref={fileInputRef}
                     className="file:text-primary file:font-medium hover:file:text-primary/90"
+                    aria-describedby="image-form-message" // Link message for accessibility
                 />
               </FormControl>
               {previewImage && (
@@ -211,16 +251,17 @@ export default function AddMemberForm() {
                       alt="Image preview"
                       width={100}
                       height={100}
-                      className="rounded-md object-cover"
+                      className="rounded-md object-cover border"
                     />
                 </div>
               )}
-              <FormMessage />
+               {/* Display specific error message for the image field */}
+               <FormMessage id="image-form-message" />
             </FormItem>
           )}
         />
 
-
+        {/* Submit Button */}
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? (
             <>

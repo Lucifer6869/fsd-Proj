@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -9,51 +10,38 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { User, AlertTriangle } from "lucide-react";
+import type { TeamMember, FetchMembersResponse } from '@/lib/types'; // Import shared types
 
-// Define the structure of a team member
-interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  imageUrl?: string; // Optional image URL (path from backend)
-  // Add other fields if needed
-}
+// Function to fetch members from the API endpoint
+async function fetchMembers(): Promise<FetchMembersResponse> {
+  console.log("Fetching members from API...");
+  try {
+    const response = await fetch('/api/members', {
+        cache: 'no-store', // Prevent caching to get the latest list
+    });
 
-// Mock data for demonstration (replace with actual API fetch)
-const MOCK_MEMBERS: TeamMember[] = [
-  { id: "1", name: "Alice Wonderland", role: "Project Manager", imageUrl: "https://picsum.photos/seed/alice/100/100" },
-  { id: "2", name: "Bob The Builder", role: "Lead Developer" , imageUrl: "https://picsum.photos/seed/bob/100/100" },
-  { id: "3", name: "Charlie Chaplin", role: "UI/UX Designer" }, // Member without image
-  { id: "4", name: "Diana Prince", role: "Backend Developer", imageUrl: "https://picsum.photos/seed/diana/100/100" },
-  { id: "5", name: "Ethan Hunt", role: "QA Tester", imageUrl: "https://picsum.photos/seed/ethan/100/100" },
-];
+    // Check if the response status is indicates failure
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({})); // Try to parse error body
+        console.error(`API Error: ${response.status}`, errorData);
+         throw new Error(errorData.message || `Failed to fetch members. Status: ${response.status}`);
+    }
 
-// Mock fetch function (replace with actual API call using fetch or axios)
-async function fetchMembers(): Promise<{ success: boolean; data?: TeamMember[]; error?: string }> {
-  console.log("Fetching members...");
-  // Simulate API call delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+    const result: FetchMembersResponse = await response.json(); // Parse the JSON response
 
-  // Simulate success/failure
-  const shouldSucceed = Math.random() > 0.1; // 90% success rate
+    // Additional check if the API returns a specific success flag
+    if (!result.success) {
+        console.error("API reported failure:", result.error);
+        throw new Error(result.message || "Failed to fetch members.");
+    }
 
-   // In a real app, this would be:
-  // try {
-  //   const response = await fetch('/api/members'); // Your backend endpoint
-  //   if (!response.ok) {
-  //     throw new Error(`HTTP error! status: ${response.status}`);
-  //   }
-  //   const data = await response.json();
-  //   return { success: true, data: data }; // Assuming backend returns { data: TeamMember[] }
-  // } catch (error) {
-  //   console.error("Failed to fetch members:", error);
-  //   return { success: false, error: error instanceof Error ? error.message : "An unknown error occurred" };
-  // }
+     console.log("Fetched members successfully:", result.data?.length);
+     return result; // Return the successful response { success: true, data: TeamMember[] }
 
-  if (shouldSucceed) {
-    return { success: true, data: MOCK_MEMBERS };
-  } else {
-    return { success: false, error: "Failed to load members from the server." };
+  } catch (error) {
+    console.error("Error fetching members:", error);
+     // Ensure the returned object matches FetchMembersResponse structure on error
+     return { success: false, error: error instanceof Error ? error.message : "An unknown error occurred fetching members." };
   }
 }
 
@@ -63,25 +51,29 @@ export default function MemberList() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  React.useEffect(() => {
-    async function loadMembers() {
+  // Function to load members, separated for potential refresh logic
+  const loadMembers = async () => {
       setIsLoading(true);
       setError(null);
       const result = await fetchMembers();
       if (result.success && result.data) {
         setMembers(result.data);
       } else {
-        setError(result.error || "An unknown error occurred.");
+        setError(result.error || "An unknown error occurred while loading members.");
       }
       setIsLoading(false);
-    }
-    loadMembers();
-  }, []);
+  };
+
+  React.useEffect(() => {
+    loadMembers(); // Load members on initial component mount
+  }, []); // Empty dependency array ensures this runs once on mount
+
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, index) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {/* Render multiple skeletons for loading state */}
+        {[...Array(4)].map((_, index) => (
           <Card key={index} className="shadow-md overflow-hidden">
             <CardHeader className="flex flex-row items-center gap-4 p-4">
                <Skeleton className="h-12 w-12 rounded-full" />
@@ -104,7 +96,10 @@ export default function MemberList() {
        <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Error Loading Members</AlertTitle>
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription>
+            {error}
+            <Button variant="link" onClick={loadMembers} className="p-0 h-auto ml-2">Try Again?</Button>
+        </AlertDescription>
       </Alert>
     );
   }
@@ -128,14 +123,22 @@ export default function MemberList() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {members.map((member) => (
-        <Card key={member.id} className="shadow-md overflow-hidden flex flex-col">
+        <Card key={member.id} className="shadow-md overflow-hidden flex flex-col transition-shadow hover:shadow-lg">
           <CardHeader className="flex flex-row items-center gap-4 p-4">
              <Avatar className="h-12 w-12 border">
-              {/* Use next/image if imageUrl exists, otherwise fallback */}
+               {/* Use member's actual imageUrl from the API */}
                {member.imageUrl ? (
-                    <AvatarImage src={member.imageUrl} alt={member.name} data-ai-hint="professional portrait" />
+                    // Using next/image requires proper configuration for external URLs if not just local paths
+                    // For local '/uploads/...' paths, ensure they are served correctly.
+                    <AvatarImage
+                        src={member.imageUrl}
+                        alt={member.name}
+                        // Add error handling for images if needed
+                        // onError={(e) => e.currentTarget.style.display = 'none'} // Simple hide on error
+                        data-ai-hint="professional portrait"
+                    />
                 ) : (
-                   // Placeholder Icon or Initials
+                   // Fallback if no image URL
                    <AvatarFallback>
                      {member.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                    </AvatarFallback>
@@ -146,11 +149,8 @@ export default function MemberList() {
                <CardDescription className="truncate" title={member.role}>{member.role}</CardDescription>
              </div>
           </CardHeader>
-          {/* Add more content if needed */}
-          {/* <CardContent className="p-4 pt-0"> */}
-             {/* Optional: Add more details here if desired in the list view */}
-          {/* </CardContent> */}
-          <CardFooter className="p-4 pt-0 mt-auto">
+          {/* Optional CardContent can go here */}
+          <CardFooter className="p-4 pt-0 mt-auto"> {/* mt-auto pushes footer down */}
             <Button variant="outline" size="sm" className="w-full" asChild>
               <Link href={`/members/${member.id}`}>View Details</Link>
             </Button>
