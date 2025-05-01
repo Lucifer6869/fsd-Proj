@@ -32,34 +32,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section (Optional Example) */}
-      <section className="bg-background py-16 px-4">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-12 text-foreground">Why TeamUp?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex flex-col items-center p-6 border rounded-lg shadow-sm bg-card">
-              <UserPlus className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2 text-card-foreground">Easy Member Addition</h3>
-              <p className="text-muted-foreground">Quickly add new members with essential details and profile pictures.</p>
-            </div>
-            <div className="flex flex-col items-center p-6 border rounded-lg shadow-sm bg-card">
-              <Users className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2 text-card-foreground">Centralized Roster</h3>
-              <p className="text-muted-foreground">View all team members in one place with clear roles and contact information.</p>
-            </div>
-            <div className="flex flex-col items-center p-6 border rounded-lg shadow-sm bg-card">
-              <Target className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2 text-card-foreground">Streamlined Management</h3>
-              <p className="text-muted-foreground">Keep your team organized and focused, improving collaboration.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-       {/* Footer Section (Simple Example) */}
-       <footer className="py-6 bg-muted text-muted-foreground text-center text-sm">
+      {/* Footer Section (Simple Example) */}
+      <footer className="py-6 bg-muted text-muted-foreground text-center text-sm">
            <p>&copy; {new Date().getFullYear()} {TEAM_NAME}. Built with TeamUp.</p>
-       </footer>
+      </footer>
     </div>
   );
 }
