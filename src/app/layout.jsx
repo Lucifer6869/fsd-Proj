@@ -20,6 +20,15 @@ const geistMono = Geist_Mono({
 export const metadata = { // Removed type: Metadata
   title: "TeamUp - Team Management", // Updated title
   description: "Manage your student team members efficiently with TeamUp.", // Updated description
+  // Add icon metadata - point to the standard favicon location
+  // NOTE: You need to add an actual favicon.ico or icon.(png|svg) file
+  // in the /public or /src/app directory for this to work.
+  // I cannot generate image files.
+  icons: {
+    icon: '/favicon.ico', // Standard path for favicon
+    // You can also specify other types like apple-touch-icon:
+    // apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({
